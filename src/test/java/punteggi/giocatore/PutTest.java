@@ -9,6 +9,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import static junit.framework.Assert.assertEquals;
 import junit.framework.TestCase;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,15 +39,25 @@ public class PutTest {
     }
     
     @Test
-    public void testPutOk() {    
+    public void testPutOk() throws ParseException {    
+        int punteggio = 89789;
         // Aggiornamento del punteggio relativo a "giocatore"
         Response rPut = punteggi.path("/"+giocatore)
-                            .queryParam("punteggio", 89789)
+                            .queryParam("punteggio", punteggio)
                             .request()
                             .put(Entity.entity("", MediaType.TEXT_PLAIN));
-        
         // Verifica che la risposta sia "200 Ok"
         assertEquals(Status.OK.getStatusCode(), rPut.getStatus());
+        
+        // Reperimento del punteggio aggiunto
+        Response rGet = punteggi.path("/"+giocatore)
+                            .request()
+                            .get();
+        // Verifica che il record sia stato aggiornato correttamente
+        JSONParser parser = new JSONParser();
+        JSONObject p = (JSONObject) parser.parse(rGet.readEntity(String.class));
+        Long punteggioCreato = (Long) p.get("punteggio");
+        assertEquals(punteggio, punteggioCreato.intValue());
     }
     
     @Test

@@ -9,6 +9,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import static junit.framework.Assert.assertEquals;
 import junit.framework.TestCase;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +39,7 @@ public class GetTest {
     }
     
     @Test
-    public void testGetOk() {    
+    public void testGetOk() throws ParseException {    
         // Reperimento del punteggio relativo a "giocatore"
         Response rGet = punteggi.path("/"+giocatore)
                             .request()
@@ -44,6 +47,14 @@ public class GetTest {
         
         // Verifica che la risposta sia "200 Ok"
         assertEquals(Status.OK.getStatusCode(), rGet.getStatus());
+        // Verifica che il record reperito sia 
+        // <"testGetGiocatore", 1000>
+        JSONParser parser = new JSONParser();
+        JSONObject p = (JSONObject) parser.parse(rGet.readEntity(String.class));
+        String giocatoreCreato = (String) p.get("giocatore"); 
+        Long punteggioCreato = (Long) p.get("punteggio");
+        assertEquals(giocatore, giocatoreCreato);
+        assertEquals(1000, punteggioCreato.intValue());
     }
     
     @Test

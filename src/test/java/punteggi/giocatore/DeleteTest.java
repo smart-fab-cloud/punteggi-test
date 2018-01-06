@@ -33,14 +33,19 @@ public class DeleteTest {
         punteggi.queryParam("giocatore", giocatore)
                 .request()
                 .post(Entity.entity("", MediaType.TEXT_PLAIN));
-        
         // Eliminazione del punteggio relativo a "giocatore"
         Response rDelete = punteggi.path("/"+giocatore)
                             .request()
                             .delete();
-        
         // Verifica che la risposta sia "200 Ok"
         assertEquals(Status.OK.getStatusCode(), rDelete.getStatus());
+        
+        // Tentativo di reperimento della risorsa eliminata
+        Response rGet = punteggi.path("/"+giocatore)
+                            .request()
+                            .get();
+        // Verifica che la risposta sia "404 Not Found"
+        assertEquals(Status.NOT_FOUND.getStatusCode(), rGet.getStatus());
     }
     
     @Test
